@@ -138,6 +138,8 @@ type Peer struct {
 	DualStackAddressFamily bool
 	// Deprecated: DisableMP is deprecated in favor of dualStackAddressFamily.
 	DisableMP bool
+	// AsPathPrepend is the number of times to prepend the local AS to the AS path.
+	AsPathPrepend uint32
 }
 
 // Pool is the configuration of an IP address pool.
@@ -492,6 +494,7 @@ func peerFromCR(p metallbv1beta2.BGPPeer, passwordSecrets map[string]corev1.Secr
 		VRF:                    p.Spec.VRFName,
 		DualStackAddressFamily: p.Spec.DualStackAddressFamily,
 		DisableMP:              p.Spec.DisableMP,
+		AsPathPrepend:          p.Spec.AsPathPrepend,
 	}, nil
 }
 

@@ -123,6 +123,14 @@ type BGPPeerSpec struct {
 	VRFName string `json:"vrf,omitempty"`
 	// Add future BGP configuration here
 
+	// AsPathPrepend prepends the local AS number to the AS path this many
+	// additional times on outgoing updates. Used to artificially lengthen
+	// the AS path so external routers prefer other paths (e.g. active/standby).
+	// +optional
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=10
+	AsPathPrepend uint32 `json:"asPathPrepend,omitempty"`
+
 	// To set if we want to disable MP BGP that will separate IPv4 and IPv6 route exchanges into distinct BGP sessions.
 	// Deprecated: DisableMP is deprecated in favor of dualStackAddressFamily.
 	// +optional

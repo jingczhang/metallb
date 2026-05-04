@@ -1,0 +1,20 @@
+FROM docker.io/golang:1.25.9 AS builder
+WORKDIR /go/go.universe.tf/metallb
+COPY go.mod go.sum ./
+COPY --from=frr-k8s . /go/go.universe.tf/frr-k8s/
+RUN go mod download
+COPY internal/ internal/
+COPY api/ api/
+COPY speaker/ speaker/
+COPY frr-tools/metrics/ frr-tools/metrics/
+COPY frr-tools/cp-tool/ frr-tools/cp-tool/
+RUN CGO_ENABLED=0 go build -v -o /build/frr-metrics frr-tools/metrics/exporter.go && \
+    CGO_ENABLED=0 go build -v -o /build/cp-tool frr-tools/cp-tool/cp-tool.go && \
+    CGO_ENABLED=0 go build -v -o /build/speaker ./speaker
+FROM gcr.io/distroless/static:latest
+COPY --from=builder /build/cp-tool /cp-tool
+COPY --from=builder /build/speaker /speaker
+COPY --from=builder /build/frr-metrics /frr-metrics
+COPY frr-tools/reloader/frr-reloader.sh /frr-reloader.sh
+COPY LICENSE /
+ENTRYPOINT ["/speaker"]
